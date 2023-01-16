@@ -136,6 +136,140 @@ namespace CppCore
 #endif
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // SETBxN
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      /// <summary>
+      /// Set memory that's multiple of 32-bit from 32-bit integer.
+      /// </summary>
+      INLINE static void set32x1(void* mem, const size_t len, const uint32_t v)
+      {
+         uint32_t* m = (uint32_t*)mem;
+         uint32_t* e = (uint32_t*)((char*)mem + len);
+         while(m < e)
+            *m++ = v;
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 64-bit from 32-bit integer.
+      /// </summary>
+      INLINE static void set32x2(void* mem, const size_t len, const uint32_t v)
+      {
+         uint32_t* m = (uint32_t*)mem;
+         uint32_t* e = (uint32_t*)((char*)mem + len);
+         while(m < e)
+         {
+            *m++ = v;
+            *m++ = v;
+         }
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 128-bit from 32-bit integer.
+      /// </summary>
+      INLINE static void set32x4(void* mem, const size_t len, const uint32_t v)
+      {
+         uint32_t* m = (uint32_t*)mem;
+         uint32_t* e = (uint32_t*)((char*)mem + len);
+         while(m < e)
+         {
+            *m++ = v;
+            *m++ = v;
+            *m++ = v;
+            *m++ = v;
+         }
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 256-bit from 32-bit integer.
+      /// </summary>
+      INLINE static void set32x8(void* mem, const size_t len, const uint32_t v)
+      {
+         uint32_t* m = (uint32_t*)mem;
+         uint32_t* e = (uint32_t*)((char*)mem + len);
+         while(m < e)
+         {
+            *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v;
+         }
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 512-bit from 32-bit integer.
+      /// </summary>
+      INLINE static void set32x16(void* mem, const size_t len, const uint32_t v)
+      {
+         uint32_t* m = (uint32_t*)mem;
+         uint32_t* e = (uint32_t*)((char*)mem + len);
+         while(m < e)
+         {
+            *m++ = v; *m++ = v; *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v; *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v; *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v; *m++ = v; *m++ = v;
+         }
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 64-bit from 64-bit integer.
+      /// </summary>
+      INLINE static void set64x1(void* mem, const size_t len, const uint64_t v)
+      {
+         uint64_t* m = (uint64_t*)mem;
+         uint64_t* e = (uint64_t*)((char*)mem + len);
+         while(m < e)
+            *m++ = v;
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 128-bit from 64-bit integer.
+      /// </summary>
+      INLINE static void set64x2(void* mem, const size_t len, const uint64_t v)
+      {
+         uint64_t* m = (uint64_t*)mem;
+         uint64_t* e = (uint64_t*)((char*)mem + len);
+         while(m < e)
+         {
+            *m++ = v;
+            *m++ = v;
+         }
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 256-bit from 64-bit integer.
+      /// </summary>
+      INLINE static void set64x4(void* mem, const size_t len, const uint64_t v)
+      {
+         uint64_t* m = (uint64_t*)mem;
+         uint64_t* e = (uint64_t*)((char*)mem + len);
+         while(m < e)
+         {
+            *m++ = v;
+            *m++ = v;
+            *m++ = v;
+            *m++ = v;
+         }
+      }
+
+      /// <summary>
+      /// Set memory that's multiple of 512-bit from 64-bit integer.
+      /// </summary>
+      INLINE static void set64x8(void* mem, const size_t len, const uint64_t v)
+      {
+         uint64_t* m = (uint64_t*)mem;
+         uint64_t* e = (uint64_t*)((char*)mem + len);
+         while(m < e)
+         {
+            *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v;
+            *m++ = v; *m++ = v;
+         }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // STREAMSET
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -365,13 +499,12 @@ namespace CppCore
 
 #if defined(CPPCORE_CPUFEAT_SSE2)
       /// <summary>
-      /// Shortcut for calling set128() with zero value.
-      /// Requires SSE2.
+      /// Clears Memory that is a multiple of 16 Bytes.
       /// </summary>
       template<bool ALIGNED = false>
       INLINE static void clear128(__m128i* mem, const size_t n128)
       {
-         Memory::set128<ALIGNED>(mem, n128, _mm_setzero_si128());
+         Memory::set128<ALIGNED>((__m128i*)mem, n128, _mm_setzero_si128());
       }
 #endif
 
@@ -400,13 +533,89 @@ namespace CppCore
 #endif
 
       /// <summary>
+      /// Clears up to 15 bytes of memory
+      /// </summary>
+      INLINE static void clear15(void* m, const size_t len)
+      {
+         assert(len <= 15U);
+         char* mem = (char*)m;
+         switch (len)
+         {
+         case 15:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*) mem) = (uint8_t) 0U;
+            break;
+         case 14:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 13:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint8_t*) mem) = (uint8_t) 0U;
+            break;
+         case 12:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            break;
+         case 11:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 10:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 9:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 8:
+            *((uint64_t*)mem) = (uint64_t)0U;
+            break;
+         case 7:
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 6:
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 5:
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint8_t*) mem) = (uint8_t) 0U;
+            break;
+         case 4:
+            *((uint32_t*)mem) = (uint32_t)0U;
+            break;
+         case 3:
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*) mem) = (uint8_t) 0U;
+            break;
+         case 2:
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 1:
+            *((uint8_t*) mem) = (uint8_t) 0U;
+            break;
+         case 0:
+            break;
+         };
+      }
+
+      /// <summary>
       /// Clears any sized memory with any alignment.
       /// Consider using optimized clearXY() or streamclearXY() for special cases instead.
       /// </summary>
-      INLINE static void clear(void* m, const size_t len)
+      INLINE static void clear(void* m, size_t len)
       {
          char*       mem = (char*)m;
-         const char* end = mem + len;
+         //const char* end = mem + len;
       #if defined(CPPCORE_CPUFEAT_AVX512F)
          const __m512i z512 = _mm512_setzero_si512();
       #endif
@@ -416,8 +625,9 @@ namespace CppCore
       #if defined(CPPCORE_CPUFEAT_SSE2)
          const __m128i z128 = _mm_setzero_si128();
       #endif
-         while (mem + 64U <= end)
+         while (len >= 64U)
          {
+            len -= 64U;
          #if defined(CPPCORE_CPUFEAT_AVX512F)
             _mm512_storeu_si512((__m512i*)mem, z512); mem += 64U;
          #elif defined(CPPCORE_CPUFEAT_AVX)
@@ -456,8 +666,9 @@ namespace CppCore
             *((uint32_t*)mem) = 0U; mem += 4U;
          #endif
          }
-         if (mem + 32U <= end)
+         if (len >= 32U)
          {
+            len -= 32U;
          #if defined(CPPCORE_CPUFEAT_AVX)
             _mm256_storeu_si256((__m256i*)mem, z256); mem += 32U;
          #elif defined(CPPCORE_CPUFEAT_SSE2)
@@ -479,8 +690,9 @@ namespace CppCore
             *((uint32_t*)mem) = 0U; mem += 4U;
          #endif
          }
-         if (mem + 16U <= end)
+         if (len >= 16U)
          {
+            len -= 16U;
          #if defined(CPPCORE_CPUFEAT_SSE2)
             _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
          #elif defined(CPPCORE_CPU_64BIT)
@@ -493,26 +705,211 @@ namespace CppCore
             *((uint32_t*)mem) = 0U; mem += 4U;
          #endif
          }
-         if (mem + 8U <= end)
+
+         
+         /*
+         if (len >= 8U)
          {
-         #if defined(CPPCORE_CPU_64BIT)
+            len -= 8U;
+            *((uint64_t*)mem) = (uint64_t)0U;
+            mem += 8U;
+         }
+         if (len >= 4U)
+         {
+            len -= 4U;
+            *((uint32_t*)mem) = (uint32_t)0U;
+            mem += 4U;
+         }
+         if (len >= 2U)
+         {
+            len -= 2U;
+            *((uint16_t*)mem) = (uint16_t)0U;
+            mem += 2U;
+         }
+         if (len)
+            *((uint8_t*)mem) = (uint8_t)0U;*/
+
+         switch (len)
+         {
+         case 15:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 14:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 13:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 12:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            break;
+         case 11:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 10:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 9:
+            *((uint64_t*)mem) = (uint64_t)0U; mem += 8U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 8:
+            *((uint64_t*)mem) = (uint64_t)0U;
+            break;
+         case 7:
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*) mem)  = (uint8_t)0U;
+            break;
+         case 6:
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 5:
+            *((uint32_t*)mem) = (uint32_t)0U; mem += 4U;
+            *((uint8_t*)mem) = (uint8_t)0U;
+            break;
+         case 4:
+            *((uint32_t*)mem) = (uint32_t)0U;
+            break;
+         case 3:
+            *((uint16_t*)mem) = (uint16_t)0U; mem += 2U;
+            *((uint8_t*)mem) = (uint8_t)0U;
+            break;
+         case 2:
+            *((uint16_t*)mem) = (uint16_t)0U;
+            break;
+         case 1:
+            *((uint8_t*)mem) = (uint8_t)0U;
+            break;
+         case 0:
+            break;
+         };
+      }
+
+      INLINE static void clear2(void* m, size_t len)
+      {
+         char*       mem = (char*)m;
+         //const char* end = mem + len;
+      #if defined(CPPCORE_CPUFEAT_AVX512F)
+         const __m512i z512 = _mm512_setzero_si512();
+      #endif
+      #if defined(CPPCORE_CPUFEAT_AVX)
+         const __m256i z256 = _mm256_setzero_si256();
+      #endif
+      #if defined(CPPCORE_CPUFEAT_SSE2)
+         const __m128i z128 = _mm_setzero_si128();
+      #endif
+         while (len >= 64U)
+         {
+            len -= 64U;
+         #if defined(CPPCORE_CPUFEAT_AVX512F)
+            _mm512_storeu_si512((__m512i*)mem, z512); mem += 64U;
+         #elif defined(CPPCORE_CPUFEAT_AVX)
+            _mm256_storeu_si256((__m256i*)mem, z256); mem += 32U;
+            _mm256_storeu_si256((__m256i*)mem, z256); mem += 32U;
+         #elif defined(CPPCORE_CPUFEAT_SSE2)
+            _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
+            _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
+            _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
+            _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
+         #elif defined(CPPCORE_CPU_64BIT)
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
             *((uint64_t*)mem) = 0ULL; mem += 8U;
          #else
             *((uint32_t*)mem) = 0U; mem += 4U;
             *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
          #endif
          }
-         if (mem + 4U <= end)
+         if (len >= 32U)
          {
+            len -= 32U;
+         #if defined(CPPCORE_CPUFEAT_AVX)
+            _mm256_storeu_si256((__m256i*)mem, z256); mem += 32U;
+         #elif defined(CPPCORE_CPUFEAT_SSE2)
+            _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
+            _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
+         #elif defined(CPPCORE_CPU_64BIT)
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+         #else
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+         #endif
+         }
+         if (len >= 16U)
+         {
+            len -= 16U;
+         #if defined(CPPCORE_CPUFEAT_SSE2)
+            _mm_storeu_si128((__m128i*)mem, z128); mem += 16U;
+         #elif defined(CPPCORE_CPU_64BIT)
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+            *((uint64_t*)mem) = 0ULL; mem += 8U;
+         #else
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+            *((uint32_t*)mem) = 0U; mem += 4U;
+         #endif
+         }
+         if (len >= 8U)
+         {
+            len -= 8U;
+            *((uint64_t*)mem) = (uint64_t)0U;
+            mem += 8U;
+         }
+         if (len >= 4U)
+         {
+            len -= 4U;
             *((uint32_t*)mem) = (uint32_t)0U;
             mem += 4U;
          }
-         if (mem + 2U <= end)
+         if (len >= 2U)
          {
+            len -= 2U;
             *((uint16_t*)mem) = (uint16_t)0U;
             mem += 2U;
          }
-         if (mem < end)
+         if (len)
             *((uint8_t*)mem) = (uint8_t)0U;
       }
 
@@ -529,61 +926,43 @@ namespace CppCore
       {
          Memory::streamset128(mem, n128, _mm_setzero_si128());
       }
-
-      /// <summary>
-      /// Shortcut for calling streamset128x1() with zero value.
-      /// Requires SSE2.
-      /// </summary>
-      INLINE static void streamclear128x1(void* mem, const size_t len)
-      {
-         Memory::streamset128x1(mem, len, _mm_setzero_si128());
-      }
-
-      /// <summary>
-      /// Shortcut for calling streamset128x2() with zero value.
-      /// Requires SSE2.
-      /// </summary>
-      INLINE static void streamclear128x2(void* mem, const size_t len)
-      {
-         Memory::streamset128x2(mem, len, _mm_setzero_si128());
-      }
-
-      /// <summary>
-      /// Shortcut for calling streamset128x4() with zero value.
-      /// Requires SSE2.
-      /// </summary>
-      INLINE static void streamclear128x4(void* mem, const size_t len)
-      {
-         Memory::streamset128x4(mem, len, _mm_setzero_si128());
-      }
-#else
-      /// <summary>
-      /// Fallback Version without Intrinsics.
-      /// len must be multiple of 16 bytes.
-      /// </summary>
-      INLINE static void streamclear128x1(void* mem, const size_t len)
-      {
-         Memory::clear(mem, len);
-      }
-
-      /// <summary>
-      /// Fallback Version without Intrinsics.
-      /// len must be multiple of 32 bytes.
-      /// </summary>
-      INLINE static void streamclear128x2(void* mem, const size_t len)
-      {
-         Memory::clear(mem, len);
-      }
-
-      /// <summary>
-      /// Fallback Version without Intrinsics.
-      /// len must be multiple of 64 bytes.
-      /// </summary>
-      INLINE static void streamclear128x4(void* mem, const size_t len)
-      {
-         Memory::clear(mem, len);
-      }
 #endif
+
+      /// <summary>
+      /// Clears memory in 128 Bit steps.
+      /// </summary>
+      INLINE static void streamclear128x1(void* mem, const size_t len)
+      {
+      #if defined(CPPCORE_CPUFEAT_SSE2)
+         Memory::streamset128x1(mem, len, _mm_setzero_si128());
+      #else
+         Memory::set64x2(mem, len, 0ULL);
+      #endif
+      }
+
+      /// <summary>
+      /// Clears memory in 256 Bit steps.
+      /// </summary>
+      INLINE static void streamclear128x2(void* mem, const size_t len)
+      {
+      #if defined(CPPCORE_CPUFEAT_SSE2)
+         Memory::streamset128x2(mem, len, _mm_setzero_si128());
+      #else
+         Memory::set64x4(mem, len, 0ULL);
+      #endif
+      }
+
+      /// <summary>
+      /// Clears memory in 512 Bit steps.
+      /// </summary>
+      INLINE static void streamclear128x4(void* mem, const size_t len)
+      {
+      #if defined(CPPCORE_CPUFEAT_SSE2)
+         Memory::streamset128x4(mem, len, _mm_setzero_si128());
+      #else
+         Memory::set64x8(mem, len, 0ULL);
+      #endif
+      }
 
 #if defined(CPPCORE_CPUFEAT_AVX)
       /// <summary>
@@ -1212,12 +1591,11 @@ namespace CppCore
       /// Copies any sized memory with any alignment.
       /// Consider using optimized copyXY() or streamcopyXY() for special cases instead.
       /// </summary>
-      INLINE static void copy(void* dstmem, const void* srcmem, const size_t len)
+      INLINE static void copy(void* dstmem, const void* srcmem, size_t len)
       {
          char*       memd = (char*)dstmem;
-         char*       mems = (char*)srcmem;
-         const char*  end = memd + len;
-         while (memd + 64U <= end)
+         const char* mems = (const char*)srcmem;
+         while (len >= 64U)
          {
          #if defined(CPPCORE_CPUFEAT_AVX512F)
             _mm512_storeu_si512((__m512i*)memd, _mm512_loadu_si512((__m512i*)mems)); memd += 64U; mems += 64U;
@@ -1256,8 +1634,9 @@ namespace CppCore
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
          #endif
+            len -= 64U;
          }
-         if (memd + 32U <= end)
+         if (len >= 32U)
          {
          #if defined(CPPCORE_CPUFEAT_AVX)
             _mm256_storeu_si256((__m256i*)memd, _mm256_loadu_si256((__m256i*)mems)); memd += 32U; mems += 32U;
@@ -1279,8 +1658,9 @@ namespace CppCore
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
          #endif
+            len -= 32U;
          }
-         if (memd + 16U <= end)
+         if (len >= 16U)
          {
          #if defined(CPPCORE_CPUFEAT_SSE2)
             _mm_storeu_si128((__m128i*)memd, _mm_loadu_si128((__m128i*)mems)); memd += 16U; mems += 16U;
@@ -1293,8 +1673,9 @@ namespace CppCore
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
          #endif
+            len -= 16U;
          }
-         if (memd + 8U <= end)
+         if (len >= 8U)
          {
          #if defined(CPPCORE_CPU_64BIT)
             *((uint64_t*)memd) = *((uint64_t*)mems); memd += 8U; mems += 8U;
@@ -1302,16 +1683,19 @@ namespace CppCore
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
          #endif
+            len -= 8U;
          }
-         if (memd + 4U <= end)
+         if (len >= 4U)
          {
             *((uint32_t*)memd) = *((uint32_t*)mems); memd += 4U; mems += 4U;
+            len -= 4U;
          }
-         if (memd + 2U <= end)
+         if (len >= 2U)
          {
             *((uint16_t*)memd) = *((uint16_t*)mems); memd += 2U; mems += 2U;
+            len -= 2U;
          }
-         if (memd < end)
+         if (len)
             *((uint8_t*)memd) = *((uint8_t*)mems);
       }
 
